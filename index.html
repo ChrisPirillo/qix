@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- SEO: Basic Metadata -->
+    <meta charset="UTF-8">
+    <title>Qix - Classic Arcade Game</title>
+    <meta name="description" content="Play Qix, a classic arcade game of skill and strategy. Claim territory by drawing lines while avoiding the deadly Qix and Sparx. A retro gaming experience.">
+    <meta name="keywords" content="Qix, arcade game, retro gaming, classic games, 80s games, web game, HTML5 game">
+    <meta name="author" content="Chris Pirillo">
+
+    <!-- SEO: Canonical URL -->
+    <link rel="canonical" href="https://pirillo.com/arcade/qix.html">
+
+    <!-- Performance & CWV: Viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO: Open Graph / Facebook -->
+    <meta property="og:title" content="Qix - Classic Arcade Game">
+    <meta property="og:description" content="Play Qix, a classic arcade game of skill and strategy. Claim territory while avoiding the deadly Qix and Sparx.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pirillo.com/arcade/qix.html">
+    <meta property="og:site_name" content="Pirillo Arcade">
+    <meta property="og:image" content="https://pirillo.com/arcade/images/qix.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- SEO: Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@ChrisPirillo">
+    <meta name="twitter:creator" content="@ChrisPirillo">
+    <meta name="twitter:title" content="Qix - Classic Arcade Game">
+    <meta name="twitter:description" content="Play Qix, a classic arcade game of skill and strategy. Claim territory while avoiding the deadly Qix and Sparx.">
+    <meta name="twitter:image" content="https://pirillo.com/arcade/images/qix.png">
+
+    <!-- Performance: Resource Hints to speed up connections to critical third-party domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+
+    <!-- Performance: Asynchronously load the font stylesheet to prevent render-blocking -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"></noscript>
+    
+    <!-- Performance: Preload the actual font file discovered from the Google Fonts CSS -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tone.js for Sound Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+    <!-- Google Analytics Snippet -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CQ4D3VQ3L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1CQ4D3VQ3L');
+    </script>
+
+    <!-- SEO: JSON-LD Structured Data for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Qix",
+      "url": "https://pirillo.com/arcade/qix.html",
+      "author": {
+        "@type": "Person",
+        "name": "Chris Pirillo"
+      },
+      "image": "https://pirillo.com/arcade/images/qix.png",
+      "description": "Play Qix, a classic arcade game of skill and strategy. Claim territory by drawing lines while avoiding the deadly Qix and Sparx.",
+      "applicationCategory": "Game",
+      "operatingSystem": "Any",
+      "gamePlatform": [ "PC", "Web Browser" ],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #0a0a0a;
+            color: #fafafa;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            /* Prevent text selection */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        canvas {
+            background-color: #000;
+            display: block;
+            box-shadow: 0 0 20px #00d9ff, 0 0 40px #00d9ff, 0 0 60px #00d9ff;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            aspect-ratio: 800 / 600;
+        }
+        #game-wrapper {
+            position: relative;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .ui-panel {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+        }
+        .ui-panel span {
+            color: #ffde00;
+        }
+        #info-button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+        #info-button {
+            font-size: 0.7rem;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            border: 2px solid #aaa;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        #info-button:hover {
+            color: #ffde00;
+            border-color: #ffde00;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(10, 10, 10, 0.9);
+            border: 4px solid #00d9ff;
+            padding: 2rem 4rem;
+            text-align: center;
+            box-shadow: 0 0 30px #00d9ff;
+            z-index: 100;
+            width: 90vw;
+            max-width: 650px;
+        }
+        .modal h2 {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: #ffde00;
+            white-space: nowrap;
+        }
+        .modal p {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .modal button {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #ffde00;
+            color: #0a0a0a;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .modal button:hover {
+            background-color: #fafafa;
+            box-shadow: 0 0 15px #ffde00;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="info-button-container">
+        <div id="info-button" aria-label="How to Play">i</div>
+    </div>
+
+    <main id="game-wrapper">
+        <div id="game-container">
+            <header class="ui-panel">
+                <div>Score: <span id="score">0</span></div>
+                <div>Level: <span id="level">1</span></div>
+                <div>Claimed: <span id="claimed-percent">0%</span></div>
+                <div>Lives: <span id="lives">3</span></div>
+            </header>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+    </main>
+
+    <div id="message-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 id="modal-title">Game Over</h2>
+        <p id="modal-text">Your final score is 0.</p>
+        <button id="modal-button">Play Again</button>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Elements ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const levelEl = document.getElementById('level');
+        const claimedPercentEl = document.getElementById('claimed-percent');
+        const livesEl = document.getElementById('lives');
+        const modal = document.getElementById('message-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalText = document.getElementById('modal-text');
+        const modalButton = document.getElementById('modal-button');
+        const infoButton = document.getElementById('info-button');
+        const gameWrapper = document.getElementById('game-wrapper');
+
+        // --- Game Constants ---
+        const GRID_SIZE = 8;
+        const PLAYER_SPEED = GRID_SIZE;
+        const BASE_QIX_SPEED = GRID_SIZE / 2;
+        const BASE_SPARX_SPEED = GRID_SIZE / 4;
+        const FUSE_TIME = 3000;
+        const TARGET_CLAIM = 75;
+        const GAME_TICK_MS = 50;
+        const HIT_FLASH_DURATION = 400;
+        const PLAYER_SLOW_MOVE_TICKS = 2;
+
+        // --- Game State ---
+        let canvasWidth, canvasHeight;
+        let score, lives, claimedArea, totalArea, level;
+        let qixSpeed, sparxSpeed;
+        let player, qix, sparx;
+        let fillMap;
+        let drawing, stix, fuseTimeout, fuseStartTime;
+        let keys = {};
+        let gameOver, levelWon, playerIsHit;
+        let lastUpdateTime = 0;
+        let gameReady = false;
+
+        // --- Sound Effects Manager ---
+        const sounds = {
+            synth: null,
+            noise: null,
+            gain: null,
+            isReady: false,
+
+            setup() {
+                if (this.isReady || typeof Tone === 'undefined') return;
+                this.synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'square' },
+                    envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 },
+                }).toDestination();
+                this.noise = new Tone.NoiseSynth({
+                    noise: { type: 'pink' },
+                    envelope: { attack: 0.005, decay: 0.2, sustain: 0.1, release: 0.2 }
+                }).toDestination();
+                this.gain = new Tone.Gain(0.3).toDestination();
+                this.synth.connect(this.gain);
+                this.noise.connect(this.gain);
+                this.isReady = true;
+            },
+            
+            claim: () => { if(sounds.isReady) sounds.synth.triggerAttackRelease(['C4', 'E4', 'G4'], '8n'); },
+            death: () => { if(sounds.isReady) sounds.noise.triggerAttackRelease('0.5s'); },
+            levelStart: () => { if(sounds.isReady) sounds.synth.triggerAttackRelease(['C5', 'E5', 'G5', 'C6'], '8n'); }
+        };
+
+        // --- Utility Functions ---
+        function isBorder(x, y) {
+            if (!fillMap) return true;
+            const gridX = Math.floor(x / GRID_SIZE);
+            const gridY = Math.floor(y / GRID_SIZE);
+            if (gridX < 0 || gridX >= canvasWidth/GRID_SIZE || gridY < 0 || gridY >= canvasHeight/GRID_SIZE) return true;
+            return fillMap[gridY][gridX] > 0;
+        }
+
+        function updateUI() {
+            scoreEl.textContent = score;
+            livesEl.textContent = lives;
+            levelEl.textContent = level;
+            const percent = totalArea > 0 ? Math.floor((claimedArea / totalArea) * 100) : 0;
+            claimedPercentEl.textContent = `${Math.min(100, percent)}%`;
+        }
+
+        function showModal(title, text, buttonText, callback) {
+            modalTitle.textContent = title;
+            modalText.innerHTML = text;
+            modalButton.textContent = buttonText;
+            modal.classList.remove('hidden');
+            
+            modalButton.onclick = () => {
+                modal.classList.add('hidden');
+                const startLogic = () => {
+                    if (callback) callback();
+                };
+                if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
+                    Tone.start().then(() => {
+                        sounds.setup();
+                        startLogic();
+                    }).catch(e => {
+                        console.error("Audio could not be started.", e);
+                        startLogic();
+                    });
+                } else {
+                    if (!sounds.isReady && typeof Tone !== 'undefined') sounds.setup();
+                    startLogic();
+                }
+            };
+        }
+        
+        // --- Game Objects ---
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.isSlow = false;
+                this.moveTick = 0;
+                this.direction = null; // Stores last move direction ('up', 'down', 'left', 'right')
+            }
+
+            draw() {
+                ctx.fillStyle = '#00ff00';
+                ctx.fillRect(this.x, this.y, GRID_SIZE, GRID_SIZE);
+            }
+
+            move() {
+                if (gameOver || levelWon || playerIsHit) return;
+
+                const onBorder = isBorder(this.x, this.y);
+                if (!onBorder && !drawing) {
+                    this.snapToClosestBorder();
+                    return;
+                }
+
+                let intendedDirection = null;
+                if (keys['ArrowUp']) { intendedDirection = 'up'; }
+                else if (keys['ArrowDown']) { intendedDirection = 'down'; }
+                else if (keys['ArrowLeft']) { intendedDirection = 'left'; }
+                else if (keys['ArrowRight']) { intendedDirection = 'right'; }
+
+                if (!intendedDirection) return;
+
+                // --- NEW LOGIC: Prevent immediate 180-degree reversal while drawing ---
+                if (drawing && stix.length > 1) {
+                    if (intendedDirection === 'up' && this.direction === 'down') return;
+                    if (intendedDirection === 'down' && this.direction === 'up') return;
+                    if (intendedDirection === 'left' && this.direction === 'right') return;
+                    if (intendedDirection === 'right' && this.direction === 'left') return;
+                }
+
+                let nextX = this.x;
+                let nextY = this.y;
+                switch (intendedDirection) {
+                    case 'up': nextY -= PLAYER_SPEED; break;
+                    case 'down': nextY += PLAYER_SPEED; break;
+                    case 'left': nextX -= PLAYER_SPEED; break;
+                    case 'right': nextX += PLAYER_SPEED; break;
+                }
+
+                if (nextX < 0 || nextX >= canvasWidth || nextY < 0 || nextY >= canvasHeight) return;
+
+                this.isSlow = !!keys['Shift'];
+                if (this.isSlow) {
+                    this.moveTick++;
+                    if (this.moveTick % PLAYER_SLOW_MOVE_TICKS !== 0) {
+                        if (drawing) { this.stopFuse(); this.startFuse(); }
+                        return;
+                    }
+                }
+
+                const nextOnBorder = isBorder(nextX, nextY);
+                const nextGridX = Math.floor(nextX / GRID_SIZE);
+                const nextGridY = Math.floor(nextY / GRID_SIZE);
+
+                if (!drawing) {
+                    if (nextGridX >= 0 && nextGridX < fillMap[0].length && nextGridY >= 0 && nextGridY < fillMap.length) {
+                         if (fillMap[nextGridY][nextGridX] > 1) return;
+                    }
+                }
+                
+                if (onBorder && !nextOnBorder) {
+                    drawing = true;
+                    stix = [{x: this.x, y: this.y}];
+                    this.startFuse();
+                }
+
+                if (drawing) {
+                    this.stopFuse();
+                    this.startFuse();
+                    this.direction = intendedDirection; // Update direction on every drawing move
+                }
+
+                this.x = nextX;
+                this.y = nextY;
+                
+                if (drawing) {
+                    stix.push({x: this.x, y: this.y});
+                    if (nextOnBorder) {
+                        this.stopFuse();
+                        completeClaim();
+                        drawing = false;
+                        stix = [];
+                        this.direction = null; // Reset direction after claim
+                    }
+                }
+            }
+            
+            snapToClosestBorder() {
+                const currentGridX = Math.floor(this.x/GRID_SIZE); const currentGridY = Math.floor(this.y/GRID_SIZE);
+                if (isBorder(this.x, this.y) && fillMap[currentGridY][currentGridX] === 1) return;
+                let closestBorderPos = null; let minDistanceSq = Infinity;
+                const gridHeight = canvasHeight / GRID_SIZE; const gridWidth = canvasWidth / GRID_SIZE;
+                for (let y = 0; y < gridHeight; y++) {
+                    for (let x = 0; x < gridWidth; x++) {
+                        if (fillMap[y][x] === 1) {
+                            const distanceSq = Math.pow(currentGridX - x, 2) + Math.pow(currentGridY - y, 2);
+                            if (distanceSq < minDistanceSq) {
+                                minDistanceSq = distanceSq; closestBorderPos = { x: x * GRID_SIZE, y: y * GRID_SIZE };
+                            }
+                        }
+                    }
+                }
+                if (closestBorderPos) { this.x = closestBorderPos.x; this.y = closestBorderPos.y; }
+                else { this.x = Math.floor(gridWidth / 2) * GRID_SIZE; this.y = 0; }
+            }
+            startFuse() { fuseStartTime = Date.now(); fuseTimeout = setTimeout(() => loseLife('The fuse ran out!'), FUSE_TIME); }
+            stopFuse() { clearTimeout(fuseTimeout); }
+        }
+
+        class Qix {
+            constructor() { this.segments = []; this.numSegments = 20; this.target = { x: 0, y: 0 }; }
+            resetPosition() { this.segments = []; const startX = Math.floor(canvasWidth / 2); const startY = Math.floor(canvasHeight / 2); for (let i = 0; i < this.numSegments; i++) { this.segments.push({ x: startX, y: startY }); } this.pickNewTarget(); }
+            pickNewTarget() { do { this.target.x = Math.floor(Math.random() * (canvasWidth / GRID_SIZE)) * GRID_SIZE; this.target.y = Math.floor(Math.random() * (canvasHeight / GRID_SIZE)) * GRID_SIZE; } while (isBorder(this.target.x, this.target.y)); }
+            move() { if (gameOver || levelWon || playerIsHit) return; const head = this.segments[0]; const dx = this.target.x - head.x; const dy = this.target.y - head.y; if (Math.abs(dx) < qixSpeed && Math.abs(dy) < qixSpeed) { this.pickNewTarget(); } const newHeadX = head.x + Math.sign(dx) * qixSpeed; const newHeadY = head.y + Math.sign(dy) * qixSpeed; if (!isBorder(newHeadX, newHeadY)) { this.segments.pop(); this.segments.unshift({ x: newHeadX, y: newHeadY }); } else { this.pickNewTarget(); } }
+            draw() { for (let i = 0; i < this.segments.length - 1; i++) { ctx.beginPath(); ctx.moveTo(this.segments[i].x + GRID_SIZE/2, this.segments[i].y + GRID_SIZE/2); ctx.lineTo(this.segments[i + 1].x + GRID_SIZE/2, this.segments[i + 1].y + GRID_SIZE/2); const hue = (Date.now() / 20 + i * 10) % 360; ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`; ctx.lineWidth = 4; ctx.stroke(); } }
+        }
+
+        class Sparx {
+            constructor(x, y, initialVx) { this.x = x; this.y = y; this.vx = initialVx; this.vy = 0; }
+            move() { if (gameOver || levelWon || playerIsHit) return; this.x += this.vx; this.y += this.vy; if (this.x <= 0 && this.y <= 0) { this.vx = sparxSpeed; this.vy = 0; } if (this.x >= canvasWidth - GRID_SIZE && this.y <= 0) { this.vx = 0; this.vy = sparxSpeed; } if (this.x >= canvasWidth - GRID_SIZE && this.y >= canvasHeight - GRID_SIZE) { this.vx = -sparxSpeed; this.vy = 0; } if (this.x <= 0 && this.y >= canvasHeight - GRID_SIZE) { this.vx = 0; this.vy = -sparxSpeed; } }
+            draw() { ctx.fillStyle = '#ff4141'; ctx.fillRect(this.x, this.y, GRID_SIZE, GRID_SIZE); }
+        }
+
+        function initNewGame() {
+            score = 0; lives = 3; level = 1;
+            startLevel();
+        }
+        
+        function startLevel() {
+            qixSpeed = BASE_QIX_SPEED + (level - 1) * (GRID_SIZE / 8);
+            sparxSpeed = BASE_SPARX_SPEED + (level - 1) * (GRID_SIZE / 16);
+            drawing = false; stix = []; gameOver = false; levelWon = false; playerIsHit = false;
+            modal.classList.add('hidden');
+            fillMap = new Array(Math.floor(canvasHeight / GRID_SIZE)).fill(0).map(() => new Array(Math.floor(canvasWidth / GRID_SIZE)).fill(0));
+            for(let y = 0; y < canvasHeight / GRID_SIZE; y++) {
+                for(let x = 0; x < canvasWidth / GRID_SIZE; x++) {
+                    if (x === 0 || x === (canvasWidth / GRID_SIZE - 1) || y === 0 || y === (canvasHeight / GRID_SIZE - 1)) {
+                        fillMap[y][x] = 1;
+                    }
+                }
+            }
+            totalArea = (canvasWidth / GRID_SIZE) * (canvasHeight / GRID_SIZE);
+            claimedArea = (canvasWidth/GRID_SIZE * 2) + (canvasHeight/GRID_SIZE * 2) - 4;
+            const startX = Math.floor((canvasWidth / 2) / GRID_SIZE) * GRID_SIZE;
+            player = new Player(startX, 0);
+            qix = new Qix();
+            qix.resetPosition();
+            sparx = [new Sparx(0, 0, sparxSpeed), new Sparx(canvasWidth - GRID_SIZE, canvasHeight - GRID_SIZE, -sparxSpeed)];
+            updateUI();
+            sounds.levelStart();
+            gameReady = true;
+        }
+
+        function setupAndStart() {
+            const maxWidth = 800; const maxHeight = 600;
+            const availableWidth = window.innerWidth * 0.9; const availableHeight = window.innerHeight * 0.9;
+            const scale = Math.min(availableWidth / maxWidth, availableHeight / maxHeight);
+            canvasWidth = Math.floor(maxWidth * scale / GRID_SIZE) * GRID_SIZE;
+            canvasHeight = Math.floor(maxHeight * scale / GRID_SIZE) * GRID_SIZE;
+            canvas.width = canvasWidth; canvas.height = canvasHeight;
+            gameWrapper.style.width = `${canvasWidth}px`;
+            
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (isTouchDevice) {
+                showModal('Mobile Notice', 'This game is optimized for keyboard play. Controls may not work as expected on a touch device.', 'Continue', initNewGame);
+            } else {
+                showModal('Welcome to Qix', 'Use Arrow Keys to move and SHIFT to draw slowly for more points. Claim 75% to win!', 'Start Game', initNewGame);
+            }
+            
+            lastUpdateTime = 0;
+            if (!window.gameLoopId) {
+                gameLoop();
+            }
+        }
+
+        function gameLoop() {
+            window.gameLoopId = requestAnimationFrame(gameLoop);
+            const now = performance.now();
+            if (now - lastUpdateTime > GAME_TICK_MS) {
+                if (gameReady && !gameOver && !levelWon) {
+                    update();
+                }
+                lastUpdateTime = now;
+            }
+            if (gameReady) {
+                draw();
+            }
+        }
+
+        function update() { player.move(); qix.move(); sparx.forEach(s => s.move()); checkCollisions(); }
+        function draw() { ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, canvasWidth, canvasHeight); const colors = ['#1a1a1a', '#4a4a4a', '#ff6a00', '#005f87']; for(let y = 0; y < canvasHeight / GRID_SIZE; y++) { for(let x = 0; x < canvasWidth / GRID_SIZE; x++) { if (fillMap[y][x] > 0) { ctx.fillStyle = colors[fillMap[y][x]]; ctx.fillRect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE); } } } if (drawing) { ctx.strokeStyle = player.isSlow ? '#ffde00' : '#00d9ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(stix[0].x + GRID_SIZE/2, stix[0].y + GRID_SIZE/2); for (let i = 1; i < stix.length; i++) { ctx.lineTo(stix[i].x + GRID_SIZE/2, stix[i].y + GRID_SIZE/2); } ctx.stroke(); const fuseProgress = (Date.now() - fuseStartTime) / FUSE_TIME; if (fuseProgress < 1) { const fuseIndex = Math.floor(fuseProgress * stix.length); if (fuseIndex < stix.length) { const fusePos = stix[fuseIndex]; ctx.fillStyle = '#ffff00'; ctx.fillRect(fusePos.x, fusePos.y, GRID_SIZE, GRID_SIZE); } } } qix.draw(); player.draw(); sparx.forEach(s => s.draw()); if (playerIsHit) { ctx.fillStyle = 'rgba(255, 0, 0, 0.4)'; ctx.fillRect(0, 0, canvasWidth, canvasHeight); } }
+        
+        function checkCollisions() {
+            if (playerIsHit || !player || !qix || !sparx) return;
+            for (const qixSegment of qix.segments) {
+                if (Math.abs(qixSegment.x - player.x) < GRID_SIZE && Math.abs(qixSegment.y - player.y) < GRID_SIZE) {
+                    loseLife('You ran into the Qix!'); return; 
+                }
+            }
+            sparx.forEach(s => { if (Math.abs(s.x - player.x) < GRID_SIZE && Math.abs(s.y - player.y) < GRID_SIZE) loseLife('Hit by a Sparx!'); });
+            if (drawing) {
+                for (const qixSegment of qix.segments) {
+                    for (const stixPoint of stix) {
+                        if (Math.abs(qixSegment.x - stixPoint.x) < GRID_SIZE / 2 && Math.abs(qixSegment.y - stixPoint.y) < GRID_SIZE / 2) {
+                            loseLife('Qix hit your Stix!'); return;
+                        }
+                    }
+                }
+            }
+        }
+
+        function loseLife(reason) { 
+            if (gameOver || levelWon || playerIsHit) return; 
+            sounds.death(); 
+            playerIsHit = true; 
+            player.stopFuse(); 
+            drawing = false; 
+            stix = []; 
+            player.direction = null; // Reset direction on death
+            lives--; 
+            updateUI(); 
+            setTimeout(() => { 
+                playerIsHit = false; 
+                if (lives <= 0) { 
+                    gameOver = true; 
+                    showModal('Game Over', `Your final score is ${score}.`, 'Play Again', initNewGame); 
+                } else { 
+                    player.snapToClosestBorder(); 
+                } 
+            }, HIT_FLASH_DURATION); 
+        }
+        
+        function completeClaim() {
+            sounds.claim();
+            const tempFillMap = JSON.parse(JSON.stringify(fillMap));
+            for (let i = 0; i < stix.length - 1; i++) {
+                const p1 = stix[i]; const p2 = stix[i+1];
+                const x1 = Math.floor(p1.x / GRID_SIZE); const y1 = Math.floor(p1.y / GRID_SIZE);
+                const x2 = Math.floor(p2.x / GRID_SIZE); const y2 = Math.floor(p2.y / GRID_SIZE);
+                if (x1 === x2) { for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) { if (y >= 0 && y < tempFillMap.length) tempFillMap[y][x1] = 1; } }
+                else { for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) { if (x >= 0 && x < tempFillMap[0].length) tempFillMap[y1][x] = 1; } }
+            }
+            const qixHead = qix.segments[0]; const qixGridX = Math.floor(qixHead.x / GRID_SIZE); const qixGridY = Math.floor(qixHead.y / GRID_SIZE);
+            if (qixGridY < 0 || qixGridY >= tempFillMap.length || qixGridX < 0 || qixGridX >= tempFillMap[0].length || tempFillMap[qixGridY][qixGridX] !== 0) {
+                 stix.forEach(p => {
+                    const gridX = Math.floor(p.x / GRID_SIZE); const gridY = Math.floor(p.y / GRID_SIZE);
+                    if (gridY >= 0 && gridY < fillMap.length && gridX >= 0 && gridX < fillMap[0].length) { fillMap[gridY][gridX] = 1; }
+                });
+                updateUI(); return;
+            }
+            const qixArea = new Set(); const q = [{x: qixGridX, y: qixGridY}]; const visited = new Set([`${qixGridX},${qixGridY}`]);
+            while(q.length > 0) {
+                const {x, y} = q.shift(); qixArea.add(`${x},${y}`);
+                [[x+1, y], [x-1, y], [x, y+1], [x, y-1]].forEach(([nx, ny]) => {
+                    if (nx >= 0 && nx < canvasWidth/GRID_SIZE && ny >= 0 && ny < canvasHeight/GRID_SIZE && !visited.has(`${nx},${ny}`) && tempFillMap[ny][nx] === 0) {
+                        visited.add(`${nx},${ny}`); q.push({x: nx, y: ny});
+                    }
+                });
+            }
+            let totalClaimedThisTurn = 0; const fillValue = player.isSlow ? 2 : 3;
+            for (let y = 0; y < canvasHeight / GRID_SIZE; y++) {
+                for (let x = 0; x < canvasWidth / GRID_SIZE; x++) {
+                    if (tempFillMap[y][x] === 0 && !qixArea.has(`${x},${y}`)) {
+                        fillMap[y][x] = fillValue; totalClaimedThisTurn++;
+                    }
+                }
+            }
+            stix.forEach(p => {
+                const gridX = Math.floor(p.x / GRID_SIZE); const gridY = Math.floor(p.y / GRID_SIZE);
+                if (gridY >= 0 && gridY < fillMap.length && gridX >= 0 && gridX < fillMap[0].length) { fillMap[gridY][gridX] = 1; }
+            });
+            if (totalClaimedThisTurn > 0) {
+                let pointsPerBlock = player.isSlow ? 20 : 10;
+                score += totalClaimedThisTurn * pointsPerBlock; claimedArea += totalClaimedThisTurn;
+            }
+            updateUI();
+            if ((claimedArea / totalArea) * 100 >= TARGET_CLAIM) {
+                levelWon = true;
+                showModal(`Level ${level} Cleared!`, `You claimed ${Math.floor((claimedArea / totalArea) * 100)}%!`, 'Next Level', () => { level++; startLevel(); });
+            }
+        }
+
+        // --- Event Listeners ---
+        window.addEventListener('keydown', e => { if(e.key.startsWith("Arrow")) e.preventDefault(); keys[e.key] = true; });
+        window.addEventListener('keyup', e => { keys[e.key] = false; });
+        window.addEventListener('blur', () => { keys = {}; });
+        infoButton.addEventListener('click', () => {
+            const instructions = `Use <b>Arrow Keys</b> to move.<br><br>Move into the empty area to draw a "Stix".<br><br>Connect back to a border to claim the area.<br><br>Hold <b>SHIFT</b> while drawing for a slow draw that gives 2x points.<br><br>Avoid the Qix and the Sparx!`;
+            showModal('How to Play', instructions, 'Close');
+        });
+        window.addEventListener('resize', setupAndStart);
+
+        setupAndStart();
+    });
+    </script>
+</body>
+</html>
